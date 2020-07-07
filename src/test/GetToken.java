@@ -23,6 +23,9 @@ import org.apache.http.impl.client.HttpClients;
  */
 public class GetToken {
     public static String getToken(String domain, String clientId, String clientSecret) {
+    	// Obtaining the Token for Accessing the API.
+    	// For more details, please refer to Section 1.2 of https://developer.huawei.com/consumer/en/doc/development/AppGallery-connect-Guides/agcapi-getstarted
+    	System.out.println("Fetching token");
         String token = null;
         try {
             HttpPost post = new HttpPost(domain + "/oauth2/v1/token");
@@ -47,6 +50,8 @@ public class GetToken {
                 String result = br.readLine();
                 JSONObject object = JSON.parseObject(result);
                 token = object.getString("access_token");
+                
+                System.out.println("token: " + token);
             }
 
             post.releaseConnection();

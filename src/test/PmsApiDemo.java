@@ -15,61 +15,56 @@ import test.model.ProductPriceInfo;
 
 public class PmsApiDemo {
 
-    /**
-     * Token domain name.
-     */
-    private static String domain = "";
+    
+	private static String domain = "https://connect-api.cloud.huawei.com/api/";
 
     /**
-     * clientId
+     * TODO: Replace with the ID of the API client in the AppGallery Connect API console. 
      */
     private static String clientId = "";
 
     /**
-     * clientSecret
+     * TODO: Replace with the Key of the API client in the AppGallery Connect API console.
      */
     private static String clientSecret = "";
 
     /**
-     * App ID.
+     * TODO: Replace with the ID of your application in AppGallery Connect: 
+     * Go to AppGallery Connect directly by this link: https://developer.huawei.com/consumer/en/service/josp/agc/index.html
      */
     private static String appId = "";
     
+    /**
+     * TODO: Replace with the ID of your in-app product
+     */
     private static String productNo = "";
 
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
 
-        // Obtain the token.
-    	System.out.println("Fetching token");
         String token = GetToken.getToken(domain, clientId, clientSecret);
+
+        createNewProducts(token);
         
-        System.out.println("token: " + token);
+    }
 
-        // Query app information.
-        System.out.println("Fetching app info");
-        GetAppInfo.getAppInfo(domain, clientId, token, appId, "en-US");
-
-        // Update app information.
-        //UpdateAppInfo.updateAppInfo(domain, clientId, token, appId);
-
-        // Upload the file.
-        //List<FileInfo> files = UploadFile.uploadFile(domain, clientId, token, appId, "png");
-
-        // After file upload, call the API for updating app file information.
-        //UploadAppFileInfo.updateAppFileInfo(domain, clientId, token, appId, files);
-
-        // Submit for review.
-        //SubmitAudit.submit(domain, clientId, token, appId);
-        
-        //Get product info
-        System.out.println("Fetching product info");
-        GetIapProductInfo.getProductInfoDetail(domain, clientId, token, appId, productNo);
-        
-        // Create a product
-        System.out.println("Creating a new product");
+	private static void createNewProducts(String token) {
+		System.out.println("Creating a new product");
         String requestNum = "123";
-        
-        List<ProductLanguageInfo> languages = new ArrayList<ProductLanguageInfo>();
+        List<ProductImportInfo> products = generateProductList();
+        ProductBatchImportReq req = new ProductBatchImportReq(requestNum, products);
+        ProductBatchImportResp response = CreateProducts.batchImportProducts(domain, clientId, token, appId, req);
+        System.out.println("Response: " + response);
+	}
+
+	private static List<ProductImportInfo> generateProductList() {
+		ProductImportInfo newProduct = generateProduct();
+        List<ProductImportInfo> products = new ArrayList<ProductImportInfo>();
+        products.add(newProduct);
+		return products;
+	}
+
+	private static ProductImportInfo generateProduct() {
+		List<ProductLanguageInfo> languages = new ArrayList<ProductLanguageInfo>();
         languages.add(new ProductLanguageInfo("en_US", "Product created by PMS", "This product is created by PMS API"));
         
         List<ProductPriceInfo> prices = new ArrayList<ProductPriceInfo>();
@@ -85,15 +80,7 @@ public class PmsApiDemo {
         newProduct.setDefaultLocale("en_US");
         newProduct.setDefaultPriceInfo(new DefaultProductPriceInfo("FI", "199", "EUR"));
         newProduct.setPrices(prices);
-        
-        
-        List<ProductImportInfo> products = new ArrayList<ProductImportInfo>();
-        products.add(newProduct);
-        
-        ProductBatchImportReq req = new ProductBatchImportReq(requestNum, products);
-        ProductBatchImportResp response = CreateProducts.batchImportProducts(domain, clientId, token, appId, req);
-        System.out.println("Response: " + response);
-        
-    }
+		return newProduct;
+	}
 
 }
